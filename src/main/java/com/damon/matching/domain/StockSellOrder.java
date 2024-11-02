@@ -6,16 +6,16 @@ import lombok.Data;
 public class StockSellOrder {
     private Long price;
     private Long createTime;
-    private Integer number;
+    private Integer quantity;
     private Long orderId;
-    private Integer originalNumber;
+    private Integer originalQuantity;
 
-    public StockSellOrder(Long orderId, Long price, Integer number, Long createTime) {
+    public StockSellOrder(Long orderId, Long price, Integer quantity, Long createTime) {
         this.price = price;
         this.createTime = createTime;
-        this.number = number;
+        this.quantity = quantity;
         this.orderId = orderId;
-        this.originalNumber = number;
+        this.originalQuantity = quantity;
 
     }
 
@@ -26,11 +26,11 @@ public class StockSellOrder {
     public StockSellOrder() {
     }
 
-    public int subtract(Integer number) {
-        if (number > this.number) {
+    public int subtract(Integer quantity) {
+        if (this.quantity < quantity) {
             return -1;
         }
-        this.number = this.number - number;
+        this.quantity = this.quantity - quantity;
         return 0;
     }
 

@@ -12,13 +12,13 @@ public class OrderSelleEntrustSucceedEvent extends Event {
 
     private Long createTime;
 
-    private Integer number;
+    private Integer quantity;
 
     private Long orderId;
 
-    public OrderSelleEntrustSucceedEvent(Long orderId, Long price, Long createTime, Integer number) {
+    public OrderSelleEntrustSucceedEvent(Long orderId, Long price, Long createTime, Integer quantity) {
         this.createTime = createTime;
-        this.number = number;
+        this.quantity = quantity;
         this.orderId = orderId;
         this.price = price;
     }

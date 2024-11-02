@@ -11,17 +11,17 @@ public class OrderBoughtEvent extends Event {
     private Long entrustPrice;
     private Long buyPrice;
     private Long orderId;
-    private Integer originalNumber;
-    private Integer tradingNumber;
+    private Integer originalQuantity;
+    private Integer tradingQuantity;
     private Boolean isDone;
 
-    public OrderBoughtEvent(Long stockId, Long entrustPrice, Long buyPrice, Long orderId, Integer originalNumber, Integer tradingNumber, Boolean isDone) {
+    public OrderBoughtEvent(Long stockId, Long entrustPrice, Long buyPrice, Long orderId, Integer originalQuantity, Integer tradingQuantity, Boolean isDone) {
         this.stockId = stockId;
         this.entrustPrice = entrustPrice;
         this.buyPrice = buyPrice;
         this.orderId = orderId;
-        this.originalNumber = originalNumber;
-        this.tradingNumber = tradingNumber;
+        this.originalQuantity = originalQuantity;
+        this.tradingQuantity = tradingQuantity;
         this.isDone = isDone;
     }
 

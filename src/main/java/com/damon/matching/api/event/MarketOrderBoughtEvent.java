@@ -9,7 +9,7 @@ import java.util.LinkedHashSet;
 public class MarketOrderBoughtEvent extends Event {
     private Long stockId;
     private Long orderId;
-    private Integer totalNumber;
+    private Integer totalQuantity;
     private LinkedHashSet<TradeOrder> tradeOrders;
     /**
      * 1 最优5档成交剩余撤销 0 最优5档成交剩余转限价单
@@ -19,11 +19,11 @@ public class MarketOrderBoughtEvent extends Event {
     public MarketOrderBoughtEvent() {
     }
 
-    public MarketOrderBoughtEvent(Long orderId, LinkedHashSet<TradeOrder> tradeOrders, Long stockId, Integer totalNumber, int entrustmentType) {
+    public MarketOrderBoughtEvent(Long orderId, LinkedHashSet<TradeOrder> tradeOrders, Long stockId, Integer totalQuantity, int entrustmentType) {
         this.orderId = orderId;
         this.tradeOrders = tradeOrders;
         this.stockId = stockId;
-        this.totalNumber = totalNumber;
+        this.totalQuantity = totalQuantity;
         this.entrustmentType = entrustmentType;
     }
 
@@ -35,12 +35,12 @@ public class MarketOrderBoughtEvent extends Event {
         return entrustmentType == 1;
     }
 
-    public Integer undoneNumber() {
-        return totalNumber - tradeOrders.stream().mapToInt(TradeOrder::getNumber).sum();
+    public Integer undoneQuantity() {
+        return totalQuantity - tradeOrders.stream().mapToInt(TradeOrder::getQuantity).sum();
     }
 
     public boolean isDone() {
-        return undoneNumber() == 0;
+        return undoneQuantity() == 0;
     }
 
     public boolean isUndone() {
@@ -50,13 +50,13 @@ public class MarketOrderBoughtEvent extends Event {
     @Data
     public static class TradeOrder {
         private Long sellerOrderId;
-        private Integer number;
+        private Integer quantity;
         private Long price;
         private boolean isDone;
 
-        public TradeOrder(Long sellerOrderId, boolean isDone, Integer number, Long price) {
+        public TradeOrder(Long sellerOrderId, boolean isDone, Integer quantity, Long price) {
             this.isDone = isDone;
-            this.number = number;
+            this.quantity = quantity;
             this.price = price;
             this.sellerOrderId = sellerOrderId;
         }

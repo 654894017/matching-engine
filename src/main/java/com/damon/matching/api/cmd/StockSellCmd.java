@@ -10,7 +10,7 @@ public class StockSellCmd extends Command {
     private Long stockId;
     private Long price;
     private Long orderId;
-    private Integer number;
+    private Integer quantity;
 
     public StockSellCmd(Long commandId, Long stockId) {
         super(commandId, stockId);

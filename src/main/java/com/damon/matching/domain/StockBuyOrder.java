@@ -11,18 +11,18 @@ public class StockBuyOrder {
 
     private Long createTime;
 
-    private Integer originalNumber;
+    private Integer originalQuantity;
 
-    private Integer number;
+    private Integer quantity;
 
     private Long orderId;
 
-    public StockBuyOrder(Long orderId, Long price, Long createTime, Integer number) {
+    public StockBuyOrder(Long orderId, Long price, Long createTime, Integer quantity) {
         this.price = price;
         this.createTime = createTime;
-        this.number = number;
+        this.quantity = quantity;
         this.orderId = orderId;
-        this.originalNumber = number;
+        this.originalQuantity = quantity;
     }
 
     public StockBuyOrder(Long orderId) {
@@ -32,11 +32,11 @@ public class StockBuyOrder {
     public StockBuyOrder() {
     }
 
-    public int subtract(Integer number) {
-        if (this.number < number) {
+    public int subtract(Integer quantity) {
+        if (this.quantity < quantity) {
             return -1;
         }
-        this.number = this.number - number;
+        this.quantity = this.quantity - quantity;
         return 0;
     }
 

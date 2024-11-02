@@ -52,11 +52,10 @@ public class StockCommandService extends CommandService<Stock> implements IStock
         return super.process(cmd, stock -> {
             StockDTO stockDTO = new StockDTO();
             stockDTO.setId(stock.getId());
-            stockDTO.setBuyOrderMap(stock.getBuyOrderMap());
-            stockDTO.setNotchPrice(stock.getNotchPrice());
             stockDTO.setRealtimePrice(stock.getRealtimePrice());
-            stockDTO.setSellOrderMap(stock.getSellOrderMap());
-            stockDTO.setTradeMap(stock.getTradeMap());
+            stockDTO.setNotchPrice(stock.getNotchPrice());
+            stockDTO.setBuyerPriceNotchQuantityMap(stock.calculateBuyerNotchQuantity(5));
+            stockDTO.setSellerPriceNotchQuantityMap(stock.calculateSellerNotchQuantity(5));
             return stockDTO;
         }).join();
     }

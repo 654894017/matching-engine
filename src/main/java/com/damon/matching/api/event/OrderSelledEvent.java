@@ -9,15 +9,15 @@ import lombok.Setter;
 public class OrderSelledEvent extends Event {
     private Long price;
     private Long orderId;
-    private Integer originalNumber;
-    private Integer tradingNumber;
+    private Integer originalQuantity;
+    private Integer tradingQuantity;
     private Boolean isDone;
 
-    public OrderSelledEvent(Long price, Long orderId, Integer originalNumber, Integer tradingNumber, Boolean isDone) {
+    public OrderSelledEvent(Long price, Long orderId, Integer originalQuantity, Integer tradingQuantity, Boolean isDone) {
         this.price = price;
         this.orderId = orderId;
-        this.originalNumber = originalNumber;
-        this.tradingNumber = tradingNumber;
+        this.originalQuantity = originalQuantity;
+        this.tradingQuantity = tradingQuantity;
         this.isDone = isDone;
     }
 

@@ -9,7 +9,7 @@ import lombok.Setter;
 public class StockMarketSellCmd extends Command {
     private Long stockId;
     private Long orderId;
-    private Integer number;
+    private Integer quantity;
     /**
      * 1 最优5档成交剩余撤销 0 最优5档成交剩余转限价单
      */

@@ -13,26 +13,26 @@ public class SimpleTest {
         for (int i = 0; i < 1; i++) {
             StockBuyCmd buyOrderCmd = new StockBuyCmd(IdUtil.getSnowflakeNextId(), 10000L);
             buyOrderCmd.setOrderId(IdUtil.getSnowflakeNextId());
-            buyOrderCmd.setNumber(1000);
+            buyOrderCmd.setQuantity(1000);
             buyOrderCmd.setPrice(101L);
             stockCommandService.buy(buyOrderCmd);
         }
         for (int i = 0; i < 1; i++) {
             StockSellCmd orderSellCmd = new StockSellCmd(IdUtil.getSnowflakeNextId(), 10000L);
             orderSellCmd.setOrderId(IdUtil.getSnowflakeNextId());
-            orderSellCmd.setNumber(1000);
+            orderSellCmd.setQuantity(1000);
             orderSellCmd.setPrice(99L);
             stockCommandService.sell(orderSellCmd);
         }
 
         StockMarketBuyCmd stockMarketBuyCmd = new StockMarketBuyCmd(IdUtil.getSnowflakeNextId(), 10000L);
-        stockMarketBuyCmd.setNumber(500);
+        stockMarketBuyCmd.setQuantity(500);
         stockMarketBuyCmd.setOrderId(IdUtil.getSnowflakeNextId());
         stockMarketBuyCmd.setEntrustmentType(1);
         stockCommandService.buy(stockMarketBuyCmd);
 
         StockMarketSellCmd stockMarketSellCmd = new StockMarketSellCmd(IdUtil.getSnowflakeNextId(), 10000L);
-        stockMarketSellCmd.setNumber(500);
+        stockMarketSellCmd.setQuantity(500);
         stockMarketSellCmd.setOrderId(IdUtil.getSnowflakeNextId());
         stockMarketSellCmd.setEntrustmentType(0);
         stockCommandService.sell(stockMarketSellCmd);
