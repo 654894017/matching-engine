@@ -12,7 +12,7 @@ public class MarketOrderSelledEvent extends Event {
     private Integer totalNumber;
     private LinkedHashSet<TradeOrder> tradeOrders;
     /**
-     * 1 最优5档成交剩余撤销 0 最优5档成交剩余转限价单
+     * 0 最优5档成交剩余撤销 1 最优5档成交剩余转限价单
      */
     private int entrustmentType;
 
