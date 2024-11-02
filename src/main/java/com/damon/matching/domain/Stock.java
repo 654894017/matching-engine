@@ -33,7 +33,6 @@ public class Stock extends AggregateRoot {
         super(id);
     }
 
-
     public TreeMap<Long, Long> calculateSellerNotchQuantity(int notch) {
         int count = 0;
         TreeMap<Long, Long> result = new TreeMap<>();
