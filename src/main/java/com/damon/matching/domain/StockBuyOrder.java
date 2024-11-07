@@ -17,7 +17,7 @@ public class StockBuyOrder {
 
     private Long orderId;
 
-    public StockBuyOrder(Long orderId, Long price, Long createTime, Integer quantity) {
+    public StockBuyOrder(Long orderId, Long price, Integer quantity, Long createTime) {
         this.price = price;
         this.createTime = createTime;
         this.quantity = quantity;

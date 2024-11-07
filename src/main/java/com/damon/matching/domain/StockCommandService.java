@@ -54,6 +54,7 @@ public class StockCommandService extends CommandService<Stock> implements IStock
             stockDTO.setId(stock.getId());
             stockDTO.setRealtimePrice(stock.getRealtimePrice());
             stockDTO.setNotchPrice(stock.getNotchPrice());
+            // 获取5档
             stockDTO.setBuyerPriceNotchQuantityMap(stock.calculateBuyerNotchQuantity(5));
             stockDTO.setSellerPriceNotchQuantityMap(stock.calculateSellerNotchQuantity(5));
             return stockDTO;
@@ -64,7 +65,7 @@ public class StockCommandService extends CommandService<Stock> implements IStock
     public Stock getAggregateSnapshot(long aggregateId, Class<Stock> classes) {
         Stock stock = new Stock(aggregateId);
         // 这边可以查询数据库获取上一个交易日的收盘价作为初始价格
-        stock.setRealtimePrice(100L);
+        stock.setRealtimePrice(999L);
         // 一个档位的价格,根据上一个交易日的涨停价除以100档位(按照涨停10个点计算)
         stock.setNotchPrice(1L);
         return stock;

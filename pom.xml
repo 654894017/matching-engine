@@ -19,17 +19,17 @@
         <dependency>
             <groupId>com.damon.cqrs</groupId>
             <artifactId>cqrs-core</artifactId>
-            <version>1.0.1-SNAPSHOT</version>
+            <version>1.0.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.damon.cqrs</groupId>
             <artifactId>cqrs-event-mysql</artifactId>
-            <version>1.0.1-SNAPSHOT</version>
+            <version>1.0.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.damon.cqrs</groupId>
             <artifactId>cqrs-message-kafka</artifactId>
-            <version>1.0.1-SNAPSHOT</version>
+            <version>1.0.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

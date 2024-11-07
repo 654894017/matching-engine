@@ -7,6 +7,9 @@ import com.damon.cqrs.kafka.config.KafkaConsumerConfig;
 
 import java.util.List;
 
+/**
+ * @author xianpinglu
+ */
 public class StockEventListener extends KafkaEventOrderlyListener {
     public StockEventListener(KafkaConsumerConfig config) {
         super(config);
