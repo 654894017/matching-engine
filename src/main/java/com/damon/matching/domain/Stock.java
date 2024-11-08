@@ -93,7 +93,7 @@ public class Stock extends AggregateRoot {
         sellPriceMap.forEach((price, sellTotalQuantity) -> {
             Long buyTotalQuantity = buyPriceMap.get(price);
             if (buyTotalQuantity != null) {
-                Long maxTradeQuantity = Math.min(buyTotalQuantity , sellTotalQuantity);
+                Long maxTradeQuantity = Math.min(buyTotalQuantity, sellTotalQuantity);
                 maxTradeMap.put(maxTradeQuantity, price);
             }
         });
@@ -288,6 +288,9 @@ public class Stock extends AggregateRoot {
                 StockSellOrder sellOrder = priceSellOrders.get(tradeOrder.getSellerOrderId());
                 sellOrder.subtract(tradeOrder.getQuantity());
             }
+            if (priceSellOrders.isEmpty()) {
+                sellOrderMap.remove(tradeOrder.getPrice());
+            }
         });
         if (event.isUndone() && event.isTransferLimitOrderEntrustment()) {
             TreeMap<Long, StockBuyOrder> stockBuyOrders = buyOrderMap.computeIfAbsent(
@@ -312,6 +315,9 @@ public class Stock extends AggregateRoot {
             } else {
                 StockBuyOrder buyOrder = priceSellOrders.get(tradeOrder.getBuyerOrderId());
                 buyOrder.subtract(tradeOrder.getQuantity());
+            }
+            if (priceSellOrders.isEmpty()) {
+                buyOrderMap.remove(tradeOrder.getPrice());
             }
         });
 
@@ -341,23 +347,29 @@ public class Stock extends AggregateRoot {
     }
 
     private void apply(OrderSelledEvent event) {
-        TreeMap<Long, StockSellOrder> stockSellOrders = sellOrderMap.get(event.getPrice());
+        TreeMap<Long, StockSellOrder> sellOrders = sellOrderMap.get(event.getPrice());
         if (event.isDone()) {
-            sellOrderMap.remove(event.getPrice());
+            sellOrders.remove(event.getOrderId());
         } else {
-            StockSellOrder sellOrder = stockSellOrders.get(event.getOrderId());
+            StockSellOrder sellOrder = sellOrders.get(event.getOrderId());
             sellOrder.subtract(event.getTradingQuantity());
+        }
+        if (sellOrders.isEmpty()) {
+            sellOrderMap.remove(event.getPrice());
         }
         this.realtimePrice = event.getPrice();
     }
 
     private void apply(OrderBoughtEvent event) {
-        TreeMap<Long, StockBuyOrder> stockBuyOrders = buyOrderMap.get(event.getEntrustPrice());
+        TreeMap<Long, StockBuyOrder> buyOrders = buyOrderMap.get(event.getEntrustPrice());
         if (event.isDone()) {
-            buyOrderMap.remove(event.getEntrustPrice());
+            buyOrders.remove(event.getOrderId());
         } else {
-            StockBuyOrder buyOrder = stockBuyOrders.get(event.getOrderId());
+            StockBuyOrder buyOrder = buyOrders.get(event.getOrderId());
             buyOrder.subtract(event.getTradingQuantity());
+        }
+        if (buyOrders.isEmpty()) {
+            buyOrderMap.remove(event.getEntrustPrice());
         }
         this.realtimePrice = event.getBuyPrice();
     }

@@ -37,7 +37,7 @@ public class SimpleTest {
         stockMarketSellCmd.setEntrustmentType(0);
         stockCommandService.sell(stockMarketSellCmd);
 
-        int result = stockCommandService.match(new StockOrderMatchCmd(IdUtil.getSnowflakeNextId(), 10000L));
+        int result = stockCommandService.match(new StockOrderMatchCmd(IdUtil.getSnowflakeNextId(), 10000L)).join();
         System.out.println(stockCommandService.get(new StockGetCmd(IdUtil.getSnowflakeNextId(), 10000L)).getRealtimePrice());
     }
 }

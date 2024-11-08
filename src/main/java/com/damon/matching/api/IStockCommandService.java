@@ -4,10 +4,12 @@ package com.damon.matching.api;
 import com.damon.matching.api.cmd.*;
 import com.damon.matching.api.dto.StockDTO;
 
+import java.util.concurrent.CompletableFuture;
+
 public interface IStockCommandService {
     int callAuction(CallAuctionCmd cmd);
 
-    int match(StockOrderMatchCmd cmd);
+    CompletableFuture<Integer> match(StockOrderMatchCmd cmd);
 
     int buy(StockBuyCmd cmd);
 

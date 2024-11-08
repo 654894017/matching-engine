@@ -6,6 +6,8 @@ import com.damon.matching.api.IStockCommandService;
 import com.damon.matching.api.cmd.*;
 import com.damon.matching.api.dto.StockDTO;
 
+import java.util.concurrent.CompletableFuture;
+
 
 public class StockCommandService extends CommandService<Stock> implements IStockCommandService {
     public StockCommandService(CqrsConfig cqrsConfig) {
@@ -18,8 +20,8 @@ public class StockCommandService extends CommandService<Stock> implements IStock
     }
 
     @Override
-    public int match(StockOrderMatchCmd cmd) {
-        return super.process(cmd, stock -> stock.match(cmd)).join();
+    public CompletableFuture<Integer> match(StockOrderMatchCmd cmd) {
+        return super.process(cmd, stock -> stock.match(cmd));
     }
 
     @Override
