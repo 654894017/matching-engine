@@ -79,7 +79,7 @@ public class CallAuctionTest {
         display5Notch(stockCommandService);
         System.out.println("--------------------------");
         for (int i = 0; i < 100; i++) {
-            stockCommandService.match(new StockOrderMatchCmd(IdUtil.getSnowflakeNextId(), 10000L));
+            stockCommandService.match(new StockOrderMatchCmd(IdUtil.getSnowflakeNextId(), 10000L)).join();
         }
         display5Notch(stockCommandService);
     }
