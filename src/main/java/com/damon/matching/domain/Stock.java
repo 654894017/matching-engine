@@ -19,6 +19,7 @@ public class Stock extends AggregateRoot {
      * 一个档位的价格
      */
     private Long notchPrice;
+
     private Map<Long, Boolean> tradeMap = new HashMap<>();
     /**
      * 先按价格档位降序, 在同档位内按下单时间升序, 类型: <price,<orderId, order>>
@@ -33,6 +34,11 @@ public class Stock extends AggregateRoot {
         super(id);
     }
 
+    /**
+     * 计算卖方N档价位列表
+     * @param notch
+     * @return
+     */
     public TreeMap<Long, Long> calculateSellerNotchQuantity(int notch) {
         int count = 0;
         TreeMap<Long, Long> result = new TreeMap<>();
@@ -41,7 +47,8 @@ public class Stock extends AggregateRoot {
             Long price = entry.getKey();
             if (sellOrders != null && !sellOrders.isEmpty()) {
                 count++;
-                result.put(price, sellOrders.values().stream().mapToLong(StockSellOrder::getQuantity).sum());
+                Long totalNumber = sellOrders.values().stream().mapToLong(StockSellOrder::getQuantity).sum();
+                result.put(price, totalNumber);
                 if (count == notch) {
                     break;
                 }
@@ -50,6 +57,11 @@ public class Stock extends AggregateRoot {
         return result;
     }
 
+    /**
+     * 计算买方N档价位列表
+     * @param notch
+     * @return
+     */
     public TreeMap<Long, Long> calculateBuyerNotchQuantity(int notch) {
         int count = 0;
         TreeMap<Long, Long> result = new TreeMap<>(Comparator.reverseOrder());
@@ -58,7 +70,8 @@ public class Stock extends AggregateRoot {
             Long price = entry.getKey();
             if (buyOrders != null && !buyOrders.isEmpty()) {
                 count++;
-                result.put(price, buyOrders.values().stream().mapToLong(StockBuyOrder::getQuantity).sum());
+                Long totalNumber = buyOrders.values().stream().mapToLong(StockBuyOrder::getQuantity).sum();
+                result.put(price,totalNumber);
                 if (count == notch) {
                     break;
                 }
@@ -76,19 +89,23 @@ public class Stock extends AggregateRoot {
      */
     public int callAuction(CallAuctionCmd cmd) {
         Map<Long, Long> sellPriceMap = new HashMap<>();
+        //计算卖方每个档位的总的待交易量(小于等于档位的待交易量都统计)
         sellOrderMap.keySet().forEach(price -> {
-            Long totalQuantity = sellOrderMap.tailMap(price).values().stream().flatMap(treeMap -> treeMap.values().stream())
-                    .mapToLong(StockSellOrder::getQuantity).sum();
+            Long totalQuantity = sellOrderMap.tailMap(price).values().stream().flatMap(
+                    treeMap -> treeMap.values().stream()
+                    ).mapToLong(StockSellOrder::getQuantity).sum();
             sellPriceMap.put(price, totalQuantity);
         });
 
         Map<Long, Long> buyPriceMap = new HashMap<>();
+        //计算买方每个档位的总的待交易量(大于等于档位的待交易量都统计)
         buyOrderMap.keySet().forEach(price -> {
-            Long totalQuantity = buyOrderMap.tailMap(price).values().stream().flatMap(treeMap -> treeMap.values().stream())
-                    .mapToLong(StockBuyOrder::getQuantity).sum();
+            Long totalQuantity = buyOrderMap.tailMap(price).values().stream().flatMap(
+                    treeMap -> treeMap.values().stream()
+            ).mapToLong(StockBuyOrder::getQuantity).sum();
             buyPriceMap.put(price, totalQuantity);
         });
-
+        //每个档位最大可成交的交易量
         TreeMap<Long, Long> maxTradeMap = new TreeMap<>(Comparator.reverseOrder());
         sellPriceMap.forEach((price, sellTotalQuantity) -> {
             Long buyTotalQuantity = buyPriceMap.get(price);
@@ -97,6 +114,7 @@ public class Stock extends AggregateRoot {
                 maxTradeMap.put(maxTradeQuantity, price);
             }
         });
+        //取出最大可成交的交易量,作为集合竞价成功价格
         Map.Entry<Long, Long> entry = maxTradeMap.firstEntry();
         if (!maxTradeMap.isEmpty() && entry.getValue() != null) {
             applyNewEvent(new CallAuctionSucceedEvent(entry.getValue()));
@@ -113,18 +131,27 @@ public class Stock extends AggregateRoot {
     public int buy(StockMarketBuyCmd cmd) {
         Integer remainingQuantity = cmd.getQuantity();
         NavigableMap<Long, TreeMap<Long, StockSellOrder>> market5NotchMap = sellOrderMap.subMap(
-                realtimePrice, true, realtimePrice + 5 * notchPrice, true
+                realtimePrice,
+                true,
+                realtimePrice + 5 * notchPrice,
+                true
         );
         LinkedHashSet<MarketOrderBoughtEvent.TradeOrder> tradeOrders = new LinkedHashSet<>();
         MarketOrderBoughtEvent orderBoughtEvent = new MarketOrderBoughtEvent(
-                cmd.getOrderId(), tradeOrders, cmd.getStockId(), cmd.getQuantity(), cmd.getEntrustmentType()
+                cmd.getOrderId(),
+                tradeOrders,
+                cmd.getStockId(),
+                cmd.getQuantity(),
+                cmd.getEntrustmentType()
         );
         for (TreeMap<Long, StockSellOrder> sellOrders : market5NotchMap.values()) {
             for (StockSellOrder sellOrder : sellOrders.values()) {
                 int sellQuantity = sellOrder.getQuantity();
                 MarketOrderBoughtEvent.TradeOrder tradeOrder = new MarketOrderBoughtEvent.TradeOrder(
-                        sellOrder.getOrderId(), sellQuantity <= remainingQuantity,
-                        Math.min(remainingQuantity, sellQuantity), sellOrder.getPrice()
+                        sellOrder.getOrderId(),
+                        sellQuantity <= remainingQuantity,
+                        Math.min(remainingQuantity, sellQuantity),
+                        sellOrder.getPrice()
                 );
                 tradeOrders.add(tradeOrder);
                 remainingQuantity -= tradeOrder.getQuantity();
@@ -150,19 +177,28 @@ public class Stock extends AggregateRoot {
     public int sell(StockMarketSellCmd cmd) {
         Integer remainingQuantity = cmd.getQuantity();
         NavigableMap<Long, TreeMap<Long, StockBuyOrder>> market5NotchMap = buyOrderMap.subMap(
-                realtimePrice + 5 * notchPrice, true, realtimePrice, true
+                realtimePrice + 5 * notchPrice,
+                true,
+                realtimePrice,
+                true
         );
         LinkedHashSet<MarketOrderSelledEvent.TradeOrder> tradeOrders = new LinkedHashSet<>();
         MarketOrderSelledEvent orderSelledEvent = new MarketOrderSelledEvent(
-                cmd.getOrderId(), tradeOrders, cmd.getStockId(), cmd.getQuantity(), cmd.getEntrustmentType()
+                cmd.getOrderId(),
+                tradeOrders,
+                cmd.getStockId(),
+                cmd.getQuantity(),
+                cmd.getEntrustmentType()
         );
 
         for (TreeMap<Long, StockBuyOrder> buyOrders : market5NotchMap.values()) {
             for (StockBuyOrder buyOrder : buyOrders.values()) {
                 int buyQuantity = buyOrder.getQuantity();
                 MarketOrderSelledEvent.TradeOrder tradeOrder = new MarketOrderSelledEvent.TradeOrder(
-                        buyOrder.getOrderId(), buyQuantity <= remainingQuantity,
-                        Math.min(remainingQuantity, buyQuantity), buyOrder.getPrice()
+                        buyOrder.getOrderId(),
+                        buyQuantity <= remainingQuantity,
+                        Math.min(remainingQuantity, buyQuantity),
+                        buyOrder.getPrice()
                 );
                 tradeOrders.add(tradeOrder);
                 remainingQuantity -= tradeOrder.getQuantity();
@@ -188,7 +224,12 @@ public class Stock extends AggregateRoot {
     public int sell(StockSellCmd cmd) {
         Boolean isTrade = tradeMap.get(cmd.getOrderId());
         if (isTrade == null) {
-            applyNewEvent(new OrderSelleEntrustSucceedEvent(cmd.getOrderId(), cmd.getPrice(), System.nanoTime(), cmd.getQuantity()));
+            applyNewEvent(new OrderSelleEntrustSucceedEvent(
+                    cmd.getOrderId(),
+                    cmd.getPrice(),
+                    System.nanoTime(),
+                    cmd.getQuantity()
+            ));
             return 0;
         } else {
             return -1;
@@ -206,7 +247,11 @@ public class Stock extends AggregateRoot {
         if (isTrade == null) {
             return -1;
         } else {
-            applyNewEvent(new OrderCancelledEvent(cmd.getOrderId(), cmd.isBuyOrder() ? 1 : 0, cmd.getPrice()));
+            applyNewEvent(new OrderCancelledEvent(
+                    cmd.getOrderId(),
+                    cmd.isBuyOrder() ? 1 : 0,
+                    cmd.getPrice()
+            ));
             return 0;
         }
     }
@@ -220,7 +265,12 @@ public class Stock extends AggregateRoot {
     public int buy(StockBuyCmd cmd) {
         Boolean isTrade = tradeMap.get(cmd.getOrderId());
         if (isTrade == null) {
-            applyNewEvent(new OrderBuyEntrustSucceedEvent(cmd.getOrderId(), cmd.getPrice(), System.nanoTime(), cmd.getQuantity()));
+            applyNewEvent(new OrderBuyEntrustSucceedEvent(
+                    cmd.getOrderId(),
+                    cmd.getPrice(),
+                    System.nanoTime(),
+                    cmd.getQuantity())
+            );
             return 0;
         } else {
             return -1;
@@ -269,12 +319,21 @@ public class Stock extends AggregateRoot {
         }
         boolean isSellDone = sellOrder.getQuantity() <= buyOrder.getQuantity();
         boolean isBuyDone = sellOrder.getQuantity() >= buyOrder.getQuantity();
-        applyNewEvent(new OrderSelledEvent(sellOrder.getPrice(), sellOrder.getOrderId(),
-                sellOrder.getOriginalQuantity(), Math.min(buyOrder.getQuantity(), sellOrder.getQuantity()), isSellDone
+        applyNewEvent(new OrderSelledEvent(
+                sellOrder.getPrice(),
+                sellOrder.getOrderId(),
+                sellOrder.getOriginalQuantity(),
+                Math.min(buyOrder.getQuantity(), sellOrder.getQuantity()),
+                isSellDone
         ));
         applyNewEvent(new OrderBoughtEvent(
-                getId(), buyOrder.getPrice(), sellOrder.getPrice(), buyOrder.getOrderId(),
-                sellOrder.getOriginalQuantity(), Math.min(buyOrder.getQuantity(), sellOrder.getQuantity()), isBuyDone
+                getId(),
+                buyOrder.getPrice(),
+                sellOrder.getPrice(),
+                buyOrder.getOrderId(),
+                sellOrder.getOriginalQuantity(),
+                Math.min(buyOrder.getQuantity(), sellOrder.getQuantity()),
+                isBuyDone
         ));
         return 0;
     }
@@ -296,7 +355,12 @@ public class Stock extends AggregateRoot {
             TreeMap<Long, StockBuyOrder> stockBuyOrders = buyOrderMap.computeIfAbsent(
                     realtimePrice, price -> new TreeMap<>()
             );
-            StockBuyOrder buyOrder = new StockBuyOrder(event.getOrderId(), realtimePrice, event.undoneQuantity(), System.nanoTime());
+            StockBuyOrder buyOrder = new StockBuyOrder(
+                    event.getOrderId(),
+                    realtimePrice,
+                    event.undoneQuantity(),
+                    System.nanoTime()
+            );
             stockBuyOrders.put(event.getOrderId(), buyOrder);
             tradeMap.put(event.getOrderId(), true);
         }
@@ -325,7 +389,12 @@ public class Stock extends AggregateRoot {
             TreeMap<Long, StockSellOrder> stockSellOrders = sellOrderMap.computeIfAbsent(
                     realtimePrice, price -> new TreeMap<>()
             );
-            StockSellOrder sellOrder = new StockSellOrder(event.getOrderId(), realtimePrice, event.undoneQuantity(), System.nanoTime());
+            StockSellOrder sellOrder = new StockSellOrder(
+                    event.getOrderId(),
+                    realtimePrice,
+                    event.undoneQuantity(),
+                    System.nanoTime()
+            );
             stockSellOrders.put(event.getOrderId(), sellOrder);
             tradeMap.put(event.getOrderId(), true);
         }
@@ -378,7 +447,12 @@ public class Stock extends AggregateRoot {
         TreeMap<Long, StockBuyOrder> stockBuyOrders = buyOrderMap.computeIfAbsent(
                 event.getPrice(), price -> new TreeMap<>()
         );
-        StockBuyOrder buyOrder = new StockBuyOrder(event.getOrderId(), event.getPrice(), event.getQuantity(), event.getCreateTime());
+        StockBuyOrder buyOrder = new StockBuyOrder(
+                event.getOrderId(),
+                event.getPrice(),
+                event.getQuantity(),
+                event.getCreateTime()
+        );
         stockBuyOrders.put(buyOrder.getOrderId(), buyOrder);
         tradeMap.put(buyOrder.getOrderId(), true);
     }
@@ -387,7 +461,12 @@ public class Stock extends AggregateRoot {
         TreeMap<Long, StockSellOrder> stockSellOrders = sellOrderMap.computeIfAbsent(
                 event.getPrice(), price -> new TreeMap<>()
         );
-        StockSellOrder sellOrder = new StockSellOrder(event.getOrderId(), event.getPrice(), event.getQuantity(), event.getCreateTime());
+        StockSellOrder sellOrder = new StockSellOrder(
+                event.getOrderId(),
+                event.getPrice(),
+                event.getQuantity(),
+                event.getCreateTime()
+        );
         stockSellOrders.put(sellOrder.getOrderId(), sellOrder);
         tradeMap.put(sellOrder.getOrderId(), true);
     }
