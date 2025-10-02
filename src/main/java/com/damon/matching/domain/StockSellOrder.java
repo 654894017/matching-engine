@@ -2,8 +2,10 @@ package com.damon.matching.domain;
 
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
-public class StockSellOrder {
+public class StockSellOrder implements Serializable {
     private Long price;
     private Long createTime;
     private Integer quantity;
