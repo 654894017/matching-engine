@@ -3,7 +3,9 @@ package com.damon.matching;
 import cn.hutool.core.util.IdUtil;
 import com.damon.cqrs.config.CqrsConfig;
 import com.damon.matching.api.IStockCommandService;
-import com.damon.matching.api.cmd.*;
+import com.damon.matching.api.cmd.StockBuyCmd;
+import com.damon.matching.api.cmd.StockGetCmd;
+import com.damon.matching.api.cmd.StockSellCmd;
 import com.damon.matching.api.dto.StockDTO;
 import com.damon.matching.domain.StockCommandService;
 
@@ -37,12 +39,12 @@ public class NotchQuantityTest {
 
         StockDTO stock = stockCommandService.get(new StockGetCmd(IdUtil.getSnowflakeNextId(), 10000L));
         System.out.println("买单5个档位:");
-        stock.getBuyerPriceNotchQuantityMap().forEach((price, quantity)->{
+        stock.getBuyerPriceNotchQuantityMap().forEach((price, quantity) -> {
             System.out.println(price + ":" + quantity);
         });
         System.out.println("实时价格:" + stock.getRealtimePrice());
         System.out.println("卖单5个档位:");
-        stock.getSellerPriceNotchQuantityMap().forEach((price, quantity)->{
+        stock.getSellerPriceNotchQuantityMap().forEach((price, quantity) -> {
             System.out.println(price + ":" + quantity);
         });
 

@@ -36,6 +36,7 @@ public class Stock extends AggregateRoot {
 
     /**
      * 计算卖方N档价位列表
+     *
      * @param notch
      * @return
      */
@@ -59,6 +60,7 @@ public class Stock extends AggregateRoot {
 
     /**
      * 计算买方N档价位列表
+     *
      * @param notch
      * @return
      */
@@ -71,7 +73,7 @@ public class Stock extends AggregateRoot {
             if (buyOrders != null && !buyOrders.isEmpty()) {
                 count++;
                 Long totalNumber = buyOrders.values().stream().mapToLong(StockBuyOrder::getQuantity).sum();
-                result.put(price,totalNumber);
+                result.put(price, totalNumber);
                 if (count == notch) {
                     break;
                 }

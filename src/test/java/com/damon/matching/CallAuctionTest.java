@@ -11,9 +11,8 @@ import org.junit.Test;
 
 /**
  * 集合竞价测试
- *
+ * <p>
  * https://m.gelonghui.com/p/513097
- *
  */
 public class CallAuctionTest {
     @Test
@@ -74,7 +73,7 @@ public class CallAuctionTest {
         stockCommandService.sell(orderSellCmd5);
         stockCommandService.callAuction(new CallAuctionCmd(IdUtil.getSnowflakeNextId(), 10000L));
         Long price = stockCommandService.get(new StockGetCmd(IdUtil.getSnowflakeNextId(), 10000L)).getRealtimePrice();
-        System.out.println("集合竞价 : "  + price);
+        System.out.println("集合竞价 : " + price);
         Assert.equals(1000L, price);
         display5Notch(stockCommandService);
         System.out.println("--------------------------");
