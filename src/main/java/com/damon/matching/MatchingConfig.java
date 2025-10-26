@@ -29,9 +29,9 @@ public class MatchingConfig {
 
     public static HikariDataSource dataSource() {
         HikariDataSource dataSource = new HikariDataSource();
-        dataSource.setJdbcUrl("jdbc:mysql://localhost:3307/cqrs?serverTimezone=UTC&rewriteBatchedStatements=true");
+        dataSource.setJdbcUrl("jdbc:mysql://localhost:3306/cqrs?serverTimezone=UTC&rewriteBatchedStatements=true");
         dataSource.setUsername("root");
-        dataSource.setPassword("root");
+        dataSource.setPassword("mysqlroot");
         dataSource.setMaximumPoolSize(20);
         dataSource.setMinimumIdle(20);
         dataSource.setDriverClassName(com.mysql.cj.jdbc.Driver.class.getTypeName());
@@ -64,15 +64,15 @@ public class MatchingConfig {
         return cqrsConfig;
     }
 
-    private static void initEventListener(IEventStore store, IEventOffset offset) {
-        ISendMessageService sendingService = new KafkaSendService("stock_event_topic", bootstrapServers);
-        new DefaultEventSendingShceduler(store, offset, sendingService, 5);
-        KafkaConsumerConfig config = new KafkaConsumerConfig();
-        config.setTopic("stock_event_topic");
-        config.setGroupId("stock_matching_group_id");
-        config.setBootstrapServers(bootstrapServers);
-        new StockEventListener(config);
-    }
+//    private static void initEventListener(IEventStore store, IEventOffset offset) {
+//        ISendMessageService sendingService = new KafkaSendService("stock_event_topic", bootstrapServers);
+//        new DefaultEventSendingShceduler(store, offset, sendingService, 5);
+//        KafkaConsumerConfig config = new KafkaConsumerConfig();
+//        config.setTopic("stock_event_topic");
+//        config.setGroupId("stock_matching_group_id");
+//        config.setBootstrapServers(bootstrapServers);
+//        new StockEventListener(config);
+//    }
 
 
 }
